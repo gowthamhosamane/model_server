@@ -46,6 +46,8 @@ MODEL_PATH = "./" + SELECTED_MODEL
 embedding_model_dir = Path(SELECTED_MODEL)
 embedding_model_configuration = SUPPORTED_EMBEDDING_MODELS[SELECTED_MODEL]
 
+print(embedding_model_dir, embedding_model_configuration)
+
 if not (embedding_model_dir / "openvino_model.xml").exists():
     model = AutoModel.from_pretrained(embedding_model_configuration["model_id"])
     converters[SELECTED_MODEL](model, embedding_model_dir)

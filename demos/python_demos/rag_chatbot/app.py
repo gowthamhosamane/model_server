@@ -16,11 +16,9 @@
 
 import gradio as gr
 import argparse
-
 from streamer import OvmsStreamer
 
-
-parser = argparse.ArgumentParser(description='Script to download LLM model based on https://github.com/openvinotoolkit/openvino_notebooks/blob/main/notebooks/254-llm-chatbot')
+parser = argparse.ArgumentParser(description='Gradio frontend launcher')
 
 parser.add_argument('--web_url',
                     required=True,
@@ -31,13 +29,39 @@ parser.add_argument('--ovms_url',
 args = parser.parse_args()
 
 
+video_to_play = None
+
 def callback(message, history):
+    global video_to_play
     streamer = OvmsStreamer(args.ovms_url.split(':')[0], int(args.ovms_url.split(':')[1]))
     streamer.request_async(message)
     result = ""
+    videofile = ""
+    compflag = False
     for completion in streamer:
-        print(completion, end='', flush=True)
-        result += completion
+        #print(completion, end='', flush=True)
+        if compflag == True:
+            videofile += completion
+        if completion != '#' and compflag == False:
+            result += completion
+        else:
+            compflag = True        
         yield result
+    videofile=videofile[:-3]
+    video_to_play = "documents/videos/" + videofile
+    print(result, flush=True)
+    print(videofile, flush=True)
+    
 
-gr.ChatInterface(callback).queue(concurrency_count=16).launch(server_name=args.web_url.split(':')[0], server_port=int(args.web_url.split(':')[1]))
+def vcallback(video):
+    print(video_to_play)
+    return video_to_play
+    
+with gr.Blocks() as demo:
+    with gr.Row():        
+        with gr.Column(scale=1, min_width=200):
+            ChatBlock = gr.ChatInterface(callback, retry_btn=None, undo_btn=None) 
+        VidBlock = gr.Interface(fn=vcallback, allow_flagging="never", inputs=None, outputs=gr.Video(None,  interactive=False, scale=4, autoplay=True, show_download_button=False, show_share_button=False))
+ 
+
+demo.launch(server_name=args.web_url.split(':')[0], server_port=int(args.web_url.split(':')[1]))

@@ -338,4 +338,8 @@ SUPPORTED_EMBEDDING_MODELS = {
     #     "model_id": "GanymedeNil/text2vec-large-chinese",
     #     "do_norm": False,
     # },
+    "mxbai-embed-large-v1": {
+        "model_id": "mixedbread-ai/mxbai-embed-large-v1",
+        "do_norm": True,
+    },
 }
