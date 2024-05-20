@@ -428,31 +428,7 @@ class OvmsPythonModel:
             self.texts = text_splitter.split_documents(documents)
             persist_directory='/workspace/db'
             self.db = Chroma.from_documents(self.texts, self.embedding, persist_directory=persist_directory)
-        else:
-            # create embeddings from new model
-            from sentence_transformers import SentenceTransformer
-            #from sentence_transformers.util import cos_sim
-
-            # 1. load model
-            model = SentenceTransformer("mixedbread-ai/mxbai-embed-large-v1")
-
-            # For retrieval you need to pass this prompt.
-            """
-            query = 'Represent this sentence for searching relevant passages: A man is eating a piece of bread'
-
-            docs = [
-                query,
-                "A man is eating food.",
-                "A man is eating pasta.",
-                "The girl is carrying a baby.",
-                "A man is riding a horse.",
-            ]
-            """
-
-            # 2. Encode
-            #embeddings = model.encode(docs)
-            # till here
-
+        else:    
             list_of_embeddings = read_all_embeddings()
             print("# Embeddings:", len(list_of_embeddings))
             list_of_generated_text = read_generated_text(); 
@@ -478,7 +454,6 @@ class OvmsPythonModel:
             #print(data['0320241915_002_300_601'])
             # Preparing documents
             docs = []
-            text = []
 
             for chunk, content in data.items():
                 if 'embedding_path' in content.keys():
@@ -495,18 +470,16 @@ class OvmsPythonModel:
                     )
                 
                     docs.append(doc_object)
-                    text.append(content['text'])
 
             print ("#Docs: ", len(docs))
-            self.embeddings = model.encode(text[:len(text)])
             
             #spliter_name = "RecursiveCharacter"  # TODO: Param?
             #chunk_size=1000  # TODO: Param?
             #chunk_overlap=200  # TODO: Param?
             #text_splitter = TEXT_SPLITERS[spliter_name](chunk_size=chunk_size, chunk_overlap=chunk_overlap)
             #self.texts = text_splitter.split_documents(documents)
-            persist_directory='/workspace/db1'
-            self.db = Chroma.from_documents(docs, self.embeddings, persist_directory=persist_directory)
+            persist_directory='/workspace/db'
+            self.db = Chroma.from_documents(docs, self.embedding, persist_directory=persist_directory)
         #x = docs[0]
         #print("First doc:", x)
         #print("First doc:", x.metadata)
